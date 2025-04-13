@@ -1,0 +1,78 @@
+name: Build and Deploy Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      DOCKERFILE_PATH:
+        description: Path to the Dockerfile
+        required: false
+        default: "./Dockerfile"
+      APP_NAME:
+        description: Application Name
+        required: true
+        default: "java-web-app"
+      CONTEXT_PATH:
+        description: Docker build context
+        required: false
+        default: "./"
+      CODE_REPO:
+        description: Code repository URL
+        required: true
+        default: "madilshahzad/web-app"
+      HELM_RELEASE_NAME:
+        description: Helm release name
+        required: true
+        default: "java-web-app"
+      HELM_CHART_PATH:
+        description: Path to the Helm chart directory
+        required: true
+        default: "java-web-app"
+      EKS_CLUSTER_NAME:
+        description: EKS Cluster Name
+        required: true
+        default: "eks-cluster"
+      ECR_REPOSITORY_URL:
+        description: Full ECR repository URL
+        required: true
+        default: "211125460769.dkr.ecr.us-east-1.amazonaws.com/java-web-app"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  maven-build:
+    uses: madnansystems87/reusable-template/.github/workflows/build-maven.yml@main
+    with:
+      CODE_REPO: ${{ github.event.inputs.CODE_REPO }}
+
+  build-and-push:
+    needs: maven-build
+    uses: madnansystems87/reusable-template/.github/workflows/build-push.yml@main
+    with:
+      DOCKERFILE_PATH: ${{ github.event.inputs.DOCKERFILE_PATH }}
+      APP_NAME: ${{ github.event.inputs.APP_NAME }}
+      CONTEXT_PATH: ${{ github.event.inputs.CONTEXT_PATH }}
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ROLE_NAME: ${{ secrets.ROLE_NAME }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+
+  deploy:
+    needs: build-and-push
+    uses: madnansystems87/reusable-template/.github/workflows/kubernetes-deployment.yml@main
+    with:
+      HELM_RELEASE_NAME: ${{ github.event.inputs.HELM_RELEASE_NAME }}
+      HELM_CHART_PATH: ${{ github.event.inputs.HELM_CHART_PATH }}
+      EKS_CLUSTER_NAME: ${{ github.event.inputs.EKS_CLUSTER_NAME }}
+      IMAGE_REPOSITORY: ${{ github.event.inputs.ECR_REPOSITORY_URL }}
+      IMAGE_TAG: ${{ needs.build-and-push.outputs.IMAGE_TAG_DEPLOY }}
+      APP_NAME: ${{ github.event.inputs.APP_NAME }}
+ 
+    secrets:
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
+      ECR_REPOSITORY_URL: ${{ secrets.ECR_REPOSITORY_URL }}
+      ROLE_NAME: ${{ secrets.ROLE_NAME }}
