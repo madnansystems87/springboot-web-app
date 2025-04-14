@@ -26,7 +26,7 @@ on:
       HELM_CHART_PATH:
         description: Path to the Helm chart directory
         required: true
-        default: "springboot-app"
+        default: "springboot-web-app"
       EKS_CLUSTER_NAME:
         description: EKS Cluster Name
         required: true
