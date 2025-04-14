@@ -18,23 +18,23 @@ on:
       CODE_REPO:
         description: Code repository URL
         required: true
-        default: "madilshahzad/web-app"
+        default: "madnansystems87/springboot-web-app"
       HELM_RELEASE_NAME:
         description: Helm release name
         required: true
-        default: "java-web-app"
+        default: "springboot-web-app"
       HELM_CHART_PATH:
         description: Path to the Helm chart directory
         required: true
-        default: "java-web-app"
+        default: "springboot-app"
       EKS_CLUSTER_NAME:
         description: EKS Cluster Name
         required: true
-        default: "eks-cluster"
+        default: "my-tf-eks-cluster"
       ECR_REPOSITORY_URL:
         description: Full ECR repository URL
         required: true
-        default: "211125460769.dkr.ecr.us-east-1.amazonaws.com/java-web-app"
+        default: "195361087056.dkr.ecr.us-east-1.amazonaws.com/java-web-app"
 
 permissions:
   id-token: write
