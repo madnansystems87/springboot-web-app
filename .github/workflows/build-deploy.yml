@@ -42,13 +42,13 @@ permissions:
 
 jobs:
   maven-build:
-    uses: madnansystems87/reusable-template/.github/workflows/build-maven.yml@main
+    uses: madnansystems87/reusable-templates/.github/workflows/build-maven.yml@main
     with:
       CODE_REPO: ${{ github.event.inputs.CODE_REPO }}
 
   build-and-push:
     needs: maven-build
-    uses: madnansystems87/reusable-template/.github/workflows/build-push.yml@main
+    uses: madnansystems87/reusable-templates/.github/workflows/build-push.yml@main
     with:
       DOCKERFILE_PATH: ${{ github.event.inputs.DOCKERFILE_PATH }}
       APP_NAME: ${{ github.event.inputs.APP_NAME }}
@@ -61,7 +61,7 @@ jobs:
 
   deploy:
     needs: build-and-push
-    uses: madnansystems87/reusable-template/.github/workflows/kubernetes-deployment.yml@main
+    uses: madnansystems87/reusable-templates/.github/workflows/kubernetes-deployment.yml@main
     with:
       HELM_RELEASE_NAME: ${{ github.event.inputs.HELM_RELEASE_NAME }}
       HELM_CHART_PATH: ${{ github.event.inputs.HELM_CHART_PATH }}
